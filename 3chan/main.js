@@ -1,9 +1,4 @@
-// --- Firebase Setup ---
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-
-// Your Firebase config
+// --- Firebase Config ---
 const firebaseConfig = {
   apiKey: "AIzaSyBZhdYcTJnqCYMtuSrLgzwx6Yr99sKaqoo",
   authDomain: "chan-37d36.firebaseapp.com",
@@ -13,32 +8,33 @@ const firebaseConfig = {
   appId: "1:1048879389879:web:8660ec07117da0a4238132"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const storage = getStorage(app);
+// --- Initialize Firebase (compat style for script tags) ---
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const storage = firebase.storage();
 
-// --- Post Button ---
+// --- DOM Elements ---
 const postButton = document.getElementById('postButton');
 const textInput = document.getElementById('textInput');
 const imageInput = document.getElementById('imageInput');
 const postsDiv = document.getElementById('posts');
 
+// --- Post Button Logic ---
 postButton.addEventListener('click', async () => {
   const text = textInput.value;
   const file = imageInput.files[0];
   let imageUrl = "";
 
   if (file) {
-    const storageRef = ref(storage, 'images/' + file.name);
-    await uploadBytes(storageRef, file);
-    imageUrl = await getDownloadURL(storageRef);
+    const storageRef = storage.ref('images/' + file.name);
+    await storageRef.put(file);
+    imageUrl = await storageRef.getDownloadURL();
   }
 
-  await addDoc(collection(db, 'posts'), {
+  await db.collection('posts').add({
     text: text,
     image: imageUrl,
-    timestamp: serverTimestamp()
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
   });
 
   // Clear inputs
@@ -47,8 +43,8 @@ postButton.addEventListener('click', async () => {
 });
 
 // --- Display Posts Live ---
-const postsQuery = query(collection(db, 'posts'), orderBy('timestamp', 'desc'));
-onSnapshot(postsQuery, (snapshot) => {
+db.collection('posts').orderBy('timestamp', 'desc')
+.onSnapshot((snapshot) => {
   postsDiv.innerHTML = "";
   snapshot.forEach((doc) => {
     const post = doc.data();
@@ -62,3 +58,4 @@ onSnapshot(postsQuery, (snapshot) => {
     postsDiv.appendChild(postEl);
   });
 });
+
