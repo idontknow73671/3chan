@@ -4,25 +4,23 @@
   <meta charset="UTF-8">
   <title>3chan</title>
   <link rel="stylesheet" href="style.css">
-
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-storage-compat.js"></script>
 </head>
 <body>
-  <h1>Welcome to 3chan</h1>
+  <h1>3chan</h1>
 
   <div id="new-post">
-    <input type="file" id="imageInput">
-    <textarea id="textInput" placeholder="Write something..."></textarea>
-    <button id="postButton">Post</button>
+    <input type="text" id="postText" placeholder="Write a post...">
+    <button onclick="postMessage()">Post</button>
+    <input type="file" id="imageUpload">
   </div>
 
   <div id="posts"></div>
 
-  <!-- Your JS -->
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
   <script src="main.js"></script>
 </body>
 </html>
-
