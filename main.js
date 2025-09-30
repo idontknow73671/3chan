@@ -1,4 +1,4 @@
-// --- Firebase Config ---
+// Firebase config (your keys)
 const firebaseConfig = {
   apiKey: "AIzaSyBZhdYcTJnqCYMtuSrLgzwx6Yr99sKaqoo",
   authDomain: "chan-37d36.firebaseapp.com",
@@ -8,54 +8,52 @@ const firebaseConfig = {
   appId: "1:1048879389879:web:8660ec07117da0a4238132"
 };
 
-// --- Initialize Firebase (compat style for script tags) ---
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const storage = firebase.storage();
 
-// --- DOM Elements ---
-const postButton = document.getElementById('postButton');
-const textInput = document.getElementById('textInput');
-const imageInput = document.getElementById('imageInput');
-const postsDiv = document.getElementById('posts');
+// Post a message
+function postMessage() {
+  const text = document.getElementById("postText").value;
+  const file = document.getElementById("imageUpload").files[0];
 
-// --- Post Button Logic ---
-postButton.addEventListener('click', async () => {
-  const text = textInput.value;
-  const file = imageInput.files[0];
-  let imageUrl = "";
+  if (!text && !file) return alert("Write something or choose an image!");
 
   if (file) {
-    const storageRef = storage.ref('images/' + file.name);
-    await storageRef.put(file);
-    imageUrl = await storageRef.getDownloadURL();
+    const storageRef = storage.ref("images/" + file.name);
+    storageRef.put(file).then(() => {
+      storageRef.getDownloadURL().then((url) => {
+        db.collection("posts").add({
+          text: text || "",
+          image: url,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      });
+    });
+  } else {
+    db.collection("posts").add({
+      text: text,
+      image: "",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
   }
 
-  await db.collection('posts').add({
-    text: text,
-    image: imageUrl,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  });
+  document.getElementById("postText").value = "";
+  document.getElementById("imageUpload").value = "";
+}
 
-  // Clear inputs
-  textInput.value = "";
-  imageInput.value = "";
-});
-
-// --- Display Posts Live ---
-db.collection('posts').orderBy('timestamp', 'desc')
-.onSnapshot((snapshot) => {
+// Display posts
+db.collection("posts").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+  const postsDiv = document.getElementById("posts");
   postsDiv.innerHTML = "";
   snapshot.forEach((doc) => {
-    const post = doc.data();
-    const postEl = document.createElement('div');
-    postEl.className = "post";
-    postEl.innerHTML = `
-      ${post.image ? `<img src="${post.image}" alt="image post">` : ''}
-      <p>${post.text}</p>
-      <hr>
-    `;
-    postsDiv.appendChild(postEl);
+    const data = doc.data();
+    const div = document.createElement("div");
+    div.className = "post";
+    div.innerHTML = `<p>${data.text}</p>` + (data.image ? `<img src="${data.image}" />` : "");
+    postsDiv.appendChild(div);
   });
 });
+
 
