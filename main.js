@@ -3,7 +3,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyBZhdYcTJnqCYMtuSrLgzwx6Yr99sKaqoo",
   authDomain: "chan-37d36.firebaseapp.com",
   projectId: "chan-37d36",
-  storageBucket: "chan-37d36.appspot.com",
+  storageBucket: "chan-37d36.appspot.com", // fixed
   messagingSenderId: "1048879389879",
   appId: "1:1048879389879:web:8660ec07117da0a4238132"
 };
@@ -55,5 +55,3 @@ db.collection("posts").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
     postsDiv.appendChild(div);
   });
 });
-
-
